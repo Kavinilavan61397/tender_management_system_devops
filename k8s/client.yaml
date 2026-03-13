@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tender-client
+spec:
+  type: NodePort # Using NodePort for simplicity on a single free tier node
+  selector:
+    app: tender-client
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080 # This port will be open on the AWS Security Group
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tender-client
+  labels:
+    app: tender-client
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tender-client
+  template:
+    metadata:
+      labels:
+        app: tender-client
+    spec:
+      containers:
+      - name: tender-client
+        image: DOCKER_USERNAME/tender-client:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"  # Nginx serving static files needs very little RAM
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"

@@ -1,0 +1,14 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
+*.tfvars
+
+# Node
+node_modules/
+
+# OS generated files
+.DS_Store
+*.pem
