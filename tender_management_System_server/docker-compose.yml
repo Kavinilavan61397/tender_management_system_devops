@@ -1,0 +1,48 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: tender-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  server:
+    image: ${DOCKER_USERNAME}/tender-server:latest
+    container_name: tender-server
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/tender-management
+      - JWT_SECRET=${JWT_SECRET:-supersecretkey}
+      - CORS_ORIGIN=https://tendermanagementsystem.duckdns.org
+      - CLIENT_URL=https://tendermanagementsystem.duckdns.org
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  client:
+    image: ${DOCKER_USERNAME}/tender-client:latest
+    container_name: tender-client
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - server
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  mongo-data:
