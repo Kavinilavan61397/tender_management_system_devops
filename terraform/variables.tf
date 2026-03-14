@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "instance_type" {
   description = "Type of EC2 instance to provision (must be free tier eligible)"
   type        = string
-  default     = "t2.micro" 
+  default     = "t3.micro" 
 }
 
 variable "ssh_key_name" {
